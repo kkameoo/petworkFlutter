@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Petwork',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',
@@ -35,7 +35,7 @@ class HomeScreen extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
             textStyle: TextStyle(fontSize: 18),
-            backgroundColor: Colors.orange,
+            backgroundColor: Colors.green,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 : ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                backgroundColor: Colors.orange,
+                backgroundColor: Colors.green,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -140,42 +140,51 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final List<String> _categories = ['산책', '거래', '고용', '개스타'];
 
+  final Map<String, List<String>> _dummyData = {
+    '산책': ['산책 요청 1', '산책 요청 2', '산책 요청 3'],
+    '거래': ['강아지 용품 팝니다', '고양이 장난감 삽니다'],
+    '고용': ['강아지 돌봐드립니다', '고양이 호텔 구합니다'],
+    '개스타': ['반려견 자랑하기', '귀여운 고양이 사진 공유']
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Petwork 메인')),
       body: Column(
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            color: Colors.orange.shade100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_categories.length, (index) {
-                return ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _selectedIndex == index ? Colors.orange : Colors.white,
-                    foregroundColor: _selectedIndex == index ? Colors.white : Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(_categories.length, (index) {
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _selectedIndex == index ? Colors.green : Colors.lightGreen,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
-                  child: Text(_categories[index]),
-                );
-              }),
-            ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                child: Text(_categories[index]),
+              );
+            }),
           ),
           Expanded(
-            child: Center(
-              child: Text(
-                '${_categories[_selectedIndex]} 리스트',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+            child: ListView.builder(
+              padding: EdgeInsets.all(16),
+              itemCount: _dummyData[_categories[_selectedIndex]]!.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  child: ListTile(
+                    title: Text(_dummyData[_categories[_selectedIndex]]![index]),
+                    leading: Icon(Icons.pets, color: Colors.green),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -183,3 +192,47 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text('Petwork 메인')),
+//       body: Column(
+//         children: [
+//           Container(
+//             padding: EdgeInsets.symmetric(vertical: 10),
+//             color: Colors.green.shade100,
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceAround,
+//               children: List.generate(_categories.length, (index) {
+//                 return ElevatedButton(
+//                   style: ElevatedButton.styleFrom(
+//                     backgroundColor: _selectedIndex == index ? Colors.green : Colors.white,
+//                     foregroundColor: _selectedIndex == index ? Colors.white : Colors.green,
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(8),
+//                     ),
+//                   ),
+//                   onPressed: () {
+//                     setState(() {
+//                       _selectedIndex = index;
+//                     });
+//                   },
+//                   child: Text(_categories[index]),
+//                 );
+//               }),
+//             ),
+//           ),
+//           Expanded(
+//             child: Center(
+//               child: Text(
+//                 '${_categories[_selectedIndex]} 리스트',
+//                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
