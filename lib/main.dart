@@ -143,74 +143,103 @@ class _MainScreenState extends State<MainScreen> {
 
   // 더미 데이터 (각 카테고리에 맞는 데이터)
   final Map<String, List<String>> _dummyData = {
-    '산책': ['강아지 산책 도와주실 분!', '공원에서 함께 산책해요!'],
-    '거래': ['강아지 용품 판매합니다.', '애견 사료 교환 가능'],
-    '고용': ['반려견 돌봄 아르바이트 구합니다.', '강아지 훈련사 모집'],
-    '개스타': ['우리 강아지 너무 귀엽죠?', '오늘 반려견과 여행 갔다왔어요!'],
+    '산책': [
+      '🐕 강아지 산책 도와주실 분!',
+      '🌳 공원에서 함께 산책해요!'.padRight(100, '🌳 공원에서 함께 산책해요!'),
+      '같이 산책 가실 분!',
+      '아무나 오세요!',
+      '지금 바로 가능 하신분!',
+    ],
+    '거래': ['📦 강아지 용품 판매합니다.', '🍖 애견 사료 교환 가능'],
+    '고용': ['💼 반려견 돌봄 아르바이트 구합니다.', '🎓 강아지 훈련사 모집'],
+    '개스타': ['📸 우리 강아지 너무 귀엽죠?', '🚗 오늘 반려견과 여행 갔다왔어요!'],
   };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Petwork 메인')),
-      body: Column(
-        children: [
-          // 상단 카테고리 버튼 리스트
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(_categories.length, (index) {
-              return ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedIndex = index;
-                    _selectedItem = null; // 카테고리를 변경하면 상세 내용 초기화
-                  });
-                },
-                child: Text(_categories[index]),
-              );
-            }),
-          ),
-          // 선택된 카테고리의 리스트 출력
-          Expanded(
-            child: ListView.builder(
-              itemCount: _dummyData[_categories[_selectedIndex]]!.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_dummyData[_categories[_selectedIndex]]![index]),
-                  onTap: () {
-                    setState(() {
-                      _selectedItem = _dummyData[_categories[_selectedIndex]]![index];
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-          // 선택된 아이템 상세 정보 표시
-          if (_selectedItem != null)
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
             Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Divider(),
-                  Text(
-                    '상세 내용',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    _selectedItem!,
-                    style: TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(_categories.length, (index) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedIndex = index;
+                        _selectedItem = null;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _selectedIndex == index ? Colors.green : Colors.grey[300],
+                    ),
+                    child: Text(_categories[index]),
+                  );
+                }),
               ),
             ),
-        ],
+            SizedBox(height: 10),
+            Container(
+              height: 500, // 리스트 영역 고정 높이 설정
+              child: ListView.builder(
+                itemCount: _dummyData[_categories[_selectedIndex]]!.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_dummyData[_categories[_selectedIndex]]![index]),
+                    onTap: () {
+                      setState(() {
+                        _selectedItem = _dummyData[_categories[_selectedIndex]]![index];
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+            if (_selectedItem != null)
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: BoxConstraints(
+                    minHeight: 100.0, // 최소 높이 설정 (내용이 짧아도 유지)
+                    maxHeight: 300.0, // 최대 높이 설정 (스크롤 가능하도록)
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '상세 내용',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          _selectedItem!,
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 }
+
+
 
 //   @override
 //   Widget build(BuildContext context) {
