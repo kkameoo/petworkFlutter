@@ -138,13 +138,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  String? _selectedItem;
   final List<String> _categories = ['산책', '거래', '고용', '개스타'];
 
+  // 더미 데이터 (각 카테고리에 맞는 데이터)
   final Map<String, List<String>> _dummyData = {
-    '산책': ['산책 요청 1', '산책 요청 2', '산책 요청 3'],
-    '거래': ['강아지 용품 팝니다', '고양이 장난감 삽니다'],
-    '고용': ['강아지 돌봐드립니다', '고양이 호텔 구합니다'],
-    '개스타': ['반려견 자랑하기', '귀여운 고양이 사진 공유']
+    '산책': ['강아지 산책 도와주실 분!', '공원에서 함께 산책해요!'],
+    '거래': ['강아지 용품 판매합니다.', '애견 사료 교환 가능'],
+    '고용': ['반려견 돌봄 아르바이트 구합니다.', '강아지 훈련사 모집'],
+    '개스타': ['우리 강아지 너무 귀엽죠?', '오늘 반려견과 여행 갔다왔어요!'],
   };
 
   @override
@@ -153,40 +155,57 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(title: Text('Petwork 메인')),
       body: Column(
         children: [
+          // 상단 카테고리 버튼 리스트
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(_categories.length, (index) {
               return ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedIndex == index ? Colors.green : Colors.lightGreen,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
                 onPressed: () {
                   setState(() {
                     _selectedIndex = index;
+                    _selectedItem = null; // 카테고리를 변경하면 상세 내용 초기화
                   });
                 },
                 child: Text(_categories[index]),
               );
             }),
           ),
+          // 선택된 카테고리의 리스트 출력
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.all(16),
               itemCount: _dummyData[_categories[_selectedIndex]]!.length,
               itemBuilder: (context, index) {
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    title: Text(_dummyData[_categories[_selectedIndex]]![index]),
-                    leading: Icon(Icons.pets, color: Colors.green),
-                  ),
+                return ListTile(
+                  title: Text(_dummyData[_categories[_selectedIndex]]![index]),
+                  onTap: () {
+                    setState(() {
+                      _selectedItem = _dummyData[_categories[_selectedIndex]]![index];
+                    });
+                  },
                 );
               },
             ),
           ),
+          // 선택된 아이템 상세 정보 표시
+          if (_selectedItem != null)
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Divider(),
+                  Text(
+                    '상세 내용',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    _selectedItem!,
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
