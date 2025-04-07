@@ -91,6 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,11 +173,11 @@ class _MainScreenState extends State<MainScreen> {
                     onPressed: () {
                       setState(() {
                         _selectedIndex = index;
-                        _selectedItem = null;
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedIndex == index ? Colors.green : Colors.grey[300],
+                      backgroundColor:
+                      _selectedIndex == index ? Colors.green : Colors.grey[300],
                     ),
                     child: Text(_categories[index]),
                   );
@@ -184,55 +186,52 @@ class _MainScreenState extends State<MainScreen> {
             ),
             SizedBox(height: 10),
             Container(
-              height: 500, // 리스트 영역 고정 높이 설정
+              height: 500,
               child: ListView.builder(
                 itemCount: _dummyData[_categories[_selectedIndex]]!.length,
                 itemBuilder: (context, index) {
+                  final item = _dummyData[_categories[_selectedIndex]]![index];
                   return ListTile(
-                    title: Text(_dummyData[_categories[_selectedIndex]]![index]),
+                    title: Text(
+                      item,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                     onTap: () {
-                      setState(() {
-                        _selectedItem = _dummyData[_categories[_selectedIndex]]![index];
-                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetailScreen(content: item),
+                        ),
+                      );
                     },
                   );
                 },
               ),
             ),
-            if (_selectedItem != null)
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  constraints: BoxConstraints(
-                    minHeight: 100.0, // 최소 높이 설정 (내용이 짧아도 유지)
-                    maxHeight: 300.0, // 최대 높이 설정 (스크롤 가능하도록)
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '상세 내용',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          _selectedItem!,
-                          style: TextStyle(fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class DetailScreen extends StatelessWidget {
+  final String content;
+
+  const DetailScreen({required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('상세 내용')),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Text(
+            content,
+            style: TextStyle(fontSize: 16),
+          ),
         ),
       ),
     );
