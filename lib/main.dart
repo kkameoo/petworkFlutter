@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'screens/gallery_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -132,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 
 class MainScreen extends StatefulWidget {
   @override
