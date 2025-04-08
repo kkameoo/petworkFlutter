@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/image_item.dart';
 
@@ -8,6 +9,28 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ 이미지 위젯 분기 처리
+    Widget imageWidget;
+    if (item.isLocalFile) {
+      imageWidget = Image.file(
+        File(item.imageUrl),
+        height: 300,
+        fit: BoxFit.cover,
+      );
+    } else {
+      imageWidget = item.imageUrl.startsWith('assets/')
+          ? Image.asset(
+        item.imageUrl,
+        height: 300,
+        fit: BoxFit.cover,
+      )
+          : Image.network(
+        item.imageUrl,
+        height: 300,
+        fit: BoxFit.cover,
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(item.title)),
       body: Center(
@@ -16,7 +39,7 @@ class DetailScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.network(item.imageUrl, height: 300, fit: BoxFit.cover),
+              imageWidget,
               SizedBox(height: 20),
               Text(
                 item.title,

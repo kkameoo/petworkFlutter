@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'screens/gallery_screen.dart';
 import 'screens/chat_page.dart';
+import 'pages/image_test_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/main': (context) => MainScreen(),
         '/chat': (context) => ChatPage(),
+        '/test': (context) => const ImageTestPage(),
       },
     );
   }
