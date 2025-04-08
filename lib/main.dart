@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'screens/gallery_screen.dart';
+import 'screens/chat_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
         '/main': (context) => MainScreen(),
+        '/chat': (context) => ChatPage(),
       },
     );
   }
@@ -188,6 +190,14 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             SizedBox(height: 10),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/chat');
+              },
+              child: Text('채팅 테스트'),
+            ),
+
             Container(
               height: 500,
               child: ListView.builder(
