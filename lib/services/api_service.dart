@@ -27,10 +27,19 @@ Future<List<dynamic>> fetchBoardList(String category) async {
   if (response.statusCode == 200) {
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (category == '개스타') {
-      data = data.where((item) => item['boardType'] == 4).toList();
+      data = data
+          .where((item) => item['boardType'] == 4)
+          .map<Map<String, dynamic>>((item) => item as Map<String, dynamic>)
+          .toList();
     }
     return data;
   } else {
     throw Exception('게시글 로드 실패: ${response.statusCode}');
   }
+}
+
+// ✅ 여기가 추가된 부분!
+Future<List<Map<String, dynamic>>> fetchPetstagramPosts() async {
+  final data = await fetchBoardList('개스타');
+  return data.map<Map<String, dynamic>>((item) => item as Map<String, dynamic>).toList();
 }

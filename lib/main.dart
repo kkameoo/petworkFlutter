@@ -3,10 +3,11 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'screens/gallery_screen.dart';
-import 'screens/chat_page.dart';
+import 'pages/chat_page.dart';
 import 'pages/image_test_page.dart';
 import 'services/api_service.dart';
 import 'screens/detail_screen.dart';
+import 'screens/petstagram_gallery.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/main': (context) => MainScreen(),
         '/chat': (context) => ChatPage(),
         '/test': (context) => const ImageTestPage(),
+        '/gallery': (context) => PetstagramGallery(),
       },
     );
   }
@@ -217,6 +219,11 @@ class _MainScreenState extends State<MainScreen> {
             },
             child: Text('채팅 테스트'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/gallery'),
+            child: Text('펫스타그램 보기'),
+          ),
+
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator())
