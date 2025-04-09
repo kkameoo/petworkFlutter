@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../models/image_item.dart';
-import 'detail_screen.dart';
+import 'package:petwork/screens/image_detail_screen.dart';
 import '../widgets/image_card.dart';
 
 class GalleryScreen extends StatefulWidget {
@@ -105,7 +105,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => DetailScreen(item: _images[index]),
+                  builder: (_) => ImageDetailScreen(content: _images[index]),
                 ),
               );
             },

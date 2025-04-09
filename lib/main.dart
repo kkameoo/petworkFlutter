@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'screens/gallery_screen.dart';
 import 'screens/chat_page.dart';
 import 'pages/image_test_page.dart';
+import 'services/api_service.dart';
+import 'screens/detail_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -147,154 +149,103 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  String? _selectedItem;
   final List<String> _categories = ['산책', '거래', '고용', '개스타'];
+  List<String> _boardItems = [];
+  bool _isLoading = false;
 
-  // 더미 데이터 (각 카테고리에 맞는 데이터)
-  final Map<String, List<String>> _dummyData = {
-    '산책': [
-      '🐕 강아지 산책 도와주실 분!',
-      '🌳 공원에서 함께 산책해요!'.padRight(100, '🌳 공원에서 함께 산책해요!'),
-      '같이 산책 가실 분!',
-      '아무나 오세요!',
-      '지금 바로 가능 하신분!',
-    ],
-    '거래': ['📦 강아지 용품 판매합니다.', '🍖 애견 사료 교환 가능'],
-    '고용': ['💼 반려견 돌봄 아르바이트 구합니다.', '🎓 강아지 훈련사 모집'],
-    '개스타': ['📸 우리 강아지 너무 귀엽죠?', '🚗 오늘 반려견과 여행 갔다왔어요!'],
-  };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBoardData(_categories[_selectedIndex]);
+  }
+
+  Future<void> _loadBoardData(String category) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final data = await fetchBoardList(category);
+      setState(() {
+        _boardItems = data.map<String>((item) => item['title'] ?? '제목 없음').toList();
+      });
+    } catch (e) {
+      print("게시글 로딩 오류: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시글 불러오기 실패')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Petwork 메인')),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(_categories.length, (index) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedIndex = index;
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                      _selectedIndex == index ? Colors.green : Colors.grey[300],
-                    ),
-                    child: Text(_categories[index]),
-                  );
-                }),
-              ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(_categories.length, (index) {
+                return ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                    _loadBoardData(_categories[index]);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                    _selectedIndex == index ? Colors.green : Colors.grey[300],
+                  ),
+                  child: Text(_categories[index]),
+                );
+              }),
             ),
-            SizedBox(height: 10),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/chat');
-              },
-              child: Text('채팅 테스트'),
-            ),
-
-            Container(
-              height: 500,
-              child: ListView.builder(
-                itemCount: _dummyData[_categories[_selectedIndex]]!.length,
-                itemBuilder: (context, index) {
-                  final item = _dummyData[_categories[_selectedIndex]]![index];
-                  return ListTile(
-                    title: Text(
-                      item,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => DetailScreen(content: item),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DetailScreen extends StatelessWidget {
-  final String content;
-
-  const DetailScreen({required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('상세 내용')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Text(
-            content,
-            style: TextStyle(fontSize: 16),
           ),
-        ),
+          SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/chat');
+            },
+            child: Text('채팅 테스트'),
+          ),
+          Expanded(
+            child: _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _boardItems.isEmpty
+                ? Center(child: Text('게시글이 없습니다.'))
+                : ListView.builder(
+              itemCount: _boardItems.length,
+              itemBuilder: (context, index) {
+                final item = _boardItems[index];
+                return ListTile(
+                  title: Text(
+                    item,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DetailScreen(content: item),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Petwork 메인')),
-//       body: Column(
-//         children: [
-//           Container(
-//             padding: EdgeInsets.symmetric(vertical: 10),
-//             color: Colors.green.shade100,
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceAround,
-//               children: List.generate(_categories.length, (index) {
-//                 return ElevatedButton(
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: _selectedIndex == index ? Colors.green : Colors.white,
-//                     foregroundColor: _selectedIndex == index ? Colors.white : Colors.green,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(8),
-//                     ),
-//                   ),
-//                   onPressed: () {
-//                     setState(() {
-//                       _selectedIndex = index;
-//                     });
-//                   },
-//                   child: Text(_categories[index]),
-//                 );
-//               }),
-//             ),
-//           ),
-//           Expanded(
-//             child: Center(
-//               child: Text(
-//                 '${_categories[_selectedIndex]} 리스트',
-//                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
