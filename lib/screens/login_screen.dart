@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:petwork/lib/login_service.dart';
 import 'package:petwork/services/login_service.dart';
+
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -14,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void handleLogin() async {
     String email = emailController.text;
     String password = passwordController.text;
+    print("🔸 로그인 요청 시작");
 
     var user = await authService.login(email, password);
     if (user != null) {
@@ -22,9 +24,9 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacementNamed(context, '/main');
     } else {
       print("로그인 실패");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("로그인 실패! 이메일 또는 비밀번호 확인")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("로그인 실패! 이메일 또는 비밀번호 확인")));
     }
   }
 
@@ -48,7 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: handleLogin,
+              onPressed: () {
+                print("🔸 로그인 요청 시작");
+                handleLogin();
+              },
               child: Text("로그인"),
             ),
           ],

@@ -48,12 +48,12 @@ class _PetstagramGalleryState extends State<PetstagramGallery> {
 
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DetailScreen(content: title),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (_) => DetailScreen(content: title),
+                  //   ),
+                  // );
                 },
                 child: Column(
                   children: [
@@ -66,11 +66,7 @@ class _PetstagramGalleryState extends State<PetstagramGallery> {
                       ),
                     ),
                     SizedBox(height: 4),
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
                 ),
               );

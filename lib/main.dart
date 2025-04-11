@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
+import 'package:petwork/models/board_item.dart';
 import 'screens/gallery_screen.dart';
 import 'pages/chat_page.dart';
 import 'pages/image_test_page.dart';
@@ -40,20 +41,28 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-            textStyle: TextStyle(fontSize: 18),
-            backgroundColor: Colors.green,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/cat.jpg'), // 배경 이미지
+            fit: BoxFit.cover,
           ),
-          onPressed: () {
-            Navigator.pushNamed(context, '/login');
-          },
-          child: Text('로그인 하러 가기', style: TextStyle(color: Colors.white)),
+        ),
+        child: Center(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              textStyle: TextStyle(fontSize: 18),
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, '/login');
+            },
+            child: Text('로그인 하러 가기', style: TextStyle(color: Colors.white)),
+          ),
         ),
       ),
     );
@@ -80,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.0.44:8087/api/user/login'), // 로그인 API 엔드포인트
+        Uri.parse('http://10.0.2.2:8087/api/user/login'), // 로그인 API 엔드포인트
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"email": email, "password": password}),
       );
@@ -88,9 +97,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         Navigator.pushReplacementNamed(context, '/main');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("로그인 실패! 이메일 또는 비밀번호 확인")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("로그인 실패! 이메일 또는 비밀번호 확인")));
       }
     } catch (e) {
       print("오류 발생: $e");
@@ -100,8 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = false;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -114,35 +121,40 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: '이메일',border: OutlineInputBorder(),),
+              decoration: InputDecoration(
+                labelText: '이메일',
+                border: OutlineInputBorder(),
+              ),
             ),
             SizedBox(height: 10),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: '비밀번호', border: OutlineInputBorder(),),
+              decoration: InputDecoration(
+                labelText: '비밀번호',
+                border: OutlineInputBorder(),
+              ),
               obscureText: true,
             ),
             SizedBox(height: 20),
             _isLoading
                 ? CircularProgressIndicator()
                 : ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: _login,
+                  child: Text('로그인', style: TextStyle(color: Colors.white)),
                 ),
-              ),
-              onPressed: _login,
-              child: Text('로그인', style: TextStyle(color: Colors.white)),
-            ),
           ],
         ),
       ),
     );
   }
 }
-
 
 class MainScreen extends StatefulWidget {
   @override
@@ -151,10 +163,11 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  final List<String> _categories = ['산책', '거래', '고용', '개스타'];
-  List<String> _boardItems = [];
-  bool _isLoading = false;
+  final List<String> _categories = ['산책', '거래', '고용', '펫스타'];
 
+  List<board_item> _boardObjectItems = [];
+  // List
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -169,21 +182,22 @@ class _MainScreenState extends State<MainScreen> {
 
     try {
       final data = await fetchBoardList(category);
+
       setState(() {
-        _boardItems = data.map<String>((item) => item['title'] ?? '제목 없음').toList();
+        _boardObjectItems =
+            data.map<board_item>((item) => board_item.fromJson(item)).toList();
       });
     } catch (e) {
       print("게시글 로딩 오류: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('게시글 불러오기 실패')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('게시글 불러오기 실패')));
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +219,9 @@ class _MainScreenState extends State<MainScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
-                    _selectedIndex == index ? Colors.green : Colors.grey[300],
+                        _selectedIndex == index
+                            ? Colors.green
+                            : Colors.grey[300],
                   ),
                   child: Text(_categories[index]),
                 );
@@ -213,43 +229,65 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
           SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/chat');
-            },
-            child: Text('채팅 테스트'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pushNamed(context, '/gallery'),
-            child: Text('펫스타그램 보기'),
-          ),
 
+          // ElevatedButton(
+          //   onPressed: () {
+          //     Navigator.pushNamed(context, '/chat');
+          //   },
+          //   child: Text('채팅 테스트'),
+          // ),
+          // ElevatedButton(
+          //   onPressed: () => Navigator.pushNamed(context, '/gallery'),
+          //   child: Text('펫스타그램 보기'),
+          // ),
           Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _boardItems.isEmpty
-                ? Center(child: Text('게시글이 없습니다.'))
-                : ListView.builder(
-              itemCount: _boardItems.length,
-              itemBuilder: (context, index) {
-                final item = _boardItems[index];
-                return ListTile(
-                  title: Text(
-                    item,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetailScreen(content: item),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+            child:
+                _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : _boardObjectItems.isEmpty
+                    ? Center(child: Text('게시글이 없습니다.'))
+                    : ListView.builder(
+                      itemCount: _boardObjectItems.length,
+                      itemBuilder: (context, index) {
+                        final item = _boardObjectItems[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                            color: Colors.white,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.shade400,
+                                  width: 1,
+                                ), // 테두리 추가
+                                borderRadius: BorderRadius.circular(
+                                  12,
+                                ), // Card와 동일한 radius
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  item.title,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => DetailScreen(item: item),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
           ),
         ],
       ),
