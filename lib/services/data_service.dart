@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 class DataService {
   static const String _apiBaseUrl =
-      "http://10.0.2.2:8087/api/photo/board/upload";
+      "http://ec2-52-78-69-115.ap-northeast-2.compute.amazonaws.com:18087/api/photo/board/upload";
 
   static Future<List<dynamic>> getImageContent(int userId) async {
     try {

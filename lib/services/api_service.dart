@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<List<dynamic>> fetchBoardList(String category) async {
-  String baseUrl = 'http://10.0.2.2:8087/api/board';
+  String baseUrl =
+      'http://ec2-52-78-69-115.ap-northeast-2.compute.amazonaws.com:18087/api/board';
   String url;
   print(category);
   switch (category) {

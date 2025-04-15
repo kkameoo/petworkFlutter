@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-// import 'package:petwork/lib/login_service.dart';
-import 'package:petwork/services/login_service.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -8,54 +8,82 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final AuthService authService = AuthService();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void handleLogin() async {
-    String email = emailController.text;
-    String password = passwordController.text;
-    print("🔸 로그인 요청 시작");
+  Future<void> _login() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
 
-    var user = await authService.login(email, password);
-    if (user != null) {
-      print("로그인 성공: ${user['email']}");
-      // 로그인 성공 시, 메인 화면으로 이동
-      Navigator.pushReplacementNamed(context, '/main');
-    } else {
-      print("로그인 실패");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("로그인 실패! 이메일 또는 비밀번호 확인")));
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+          'http://ec2-52-78-69-115.ap-northeast-2.compute.amazonaws.com:18087/api/user/login',
+        ),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacementNamed(context, '/main');
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("로그인 실패! 이메일 또는 비밀번호 확인")));
+      }
+    } catch (e) {
+      print("오류 발생: $e");
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("로그인")),
+      appBar: AppBar(title: Text('로그인')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: "이메일"),
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: '이메일',
+                border: OutlineInputBorder(),
+              ),
             ),
+            SizedBox(height: 10),
             TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: "비밀번호"),
+              controller: _passwordController,
+              decoration: InputDecoration(
+                labelText: '비밀번호',
+                border: OutlineInputBorder(),
+              ),
               obscureText: true,
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                print("🔸 로그인 요청 시작");
-                handleLogin();
-              },
-              child: Text("로그인"),
-            ),
+            _isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: _login,
+                  child: Text('로그인', style: TextStyle(color: Colors.white)),
+                ),
           ],
         ),
       ),
